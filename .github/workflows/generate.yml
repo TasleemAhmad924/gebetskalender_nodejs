@@ -3,15 +3,17 @@ name: Gebetszeiten automatisch generieren
 on:
   schedule:
     - cron: '0 1 * * *'  # Täglich um 01:00 UTC
-  workflow_dispatch:      # Manuelles Auslösen möglich
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Repository auschecken
+      - name: 📥 Repository auschecken (mit Token)
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: 🛠 Node.js einrichten
         uses: actions/setup-node@v3
@@ -25,13 +27,9 @@ jobs:
         run: npx ts-node generate-calendar.ts
 
       - name: 💾 Änderungen committen und pushen
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
           git add docs/gebetszeiten.ics
           git commit -m "🔁 Tägliches Update der ICS-Datei" || echo "Nichts zu committen"
-          git push origin HEAD
-
+          git push
