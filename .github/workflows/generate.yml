@@ -1,0 +1,33 @@
+name: Gebetszeiten automatisch generieren
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # Täglich um 01:00 UTC
+  workflow_dispatch:      # Manuelles Auslösen möglich
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Repository auschecken
+        uses: actions/checkout@v3
+
+      - name: 🛠 Node.js einrichten
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📦 Abhängigkeiten installieren
+        run: npm ci
+
+      - name: ⚙️ ICS-Datei generieren
+        run: npx ts-node generate-calendar.ts
+
+      - name: 💾 Änderungen committen und pushen
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/gebetszeiten.ics
+          git commit -m "🔁 Tägliches Update der ICS-Datei" || echo "Nichts zu committen"
+          git push
