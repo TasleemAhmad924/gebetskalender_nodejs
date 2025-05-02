@@ -97,7 +97,7 @@ function createICSFile(prayerData: PrayerTimesResponse): void {
       start: prayerTimeUTC.toJSDate(),
       end: endTimeUTC.toJSDate(),
       description: `${prayer.name} Gebetszeit automatisch aus alislam.org`,
-      timezone: 'UTC'
+      
     });
 
     event.uid(eventId);
