@@ -73,7 +73,7 @@ function createICSFile(prayerData: PrayerTimesResponse): void {
     prodId: '//alislam.org//Gebetszeiten//DE'
   });
 
-  const todayBerlin = DateTime.now().setZone(TIME_ZONE).startOf('day');
+  const [year, month, day] = prayerData.date.split('-').map(Number);
   const prayers = prayerData.prayers.filter(prayer =>
     OBLIGATORY_PRAYERS.includes(prayer.name)
   );
@@ -85,7 +85,13 @@ function createICSFile(prayerData: PrayerTimesResponse): void {
 
   prayers.forEach(prayer => {
     const [hours, minutes] = prayer.begins.split(':').map(Number);
-    const prayerTimeBerlin = todayBerlin.set({ hour: hours, minute: minutes });
+
+    // ✅ Korrekte Berlin-Zeit mit Datum
+    const prayerTimeBerlin = DateTime.fromObject(
+      { year, month, day, hour: hours, minute: minutes },
+      { zone: TIME_ZONE }
+    );
+
     const prayerTimeUTC = prayerTimeBerlin.toUTC();
     const endTimeUTC = prayerTimeUTC.plus({ minutes: EVENT_DURATION_MINUTES });
 
@@ -98,17 +104,16 @@ function createICSFile(prayerData: PrayerTimesResponse): void {
       description: `${prayer.name} Gebetszeit automatisch aus alislam.org`,
     });
 
+    // 👇 bleibt wie von dir definiert
     event.uid(eventId);
   });
 
-  // 📍 Nur hier wird geschrieben: ./docs/gebetszeiten.ics
   const outputDir = path.join(__dirname, 'docs');
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir);
-}
-const filePath = path.join(outputDir, ICS_FILE_NAME);
-console.log("📁 Schreibe ICS-Datei nach:", filePath);
-
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+  const filePath = path.join(outputDir, ICS_FILE_NAME);
+  console.log("📁 Schreibe ICS-Datei nach:", filePath);
 
   try {
     fs.writeFileSync(filePath, calendar.toString());
@@ -117,6 +122,7 @@ console.log("📁 Schreibe ICS-Datei nach:", filePath);
     console.error('❌ Fehler beim Schreiben der ICS-Datei:', err);
   }
 }
+
 
 async function main() {
   console.log('🟡 Skript gestartet...');
