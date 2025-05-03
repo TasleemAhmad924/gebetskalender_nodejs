@@ -129,6 +129,10 @@ async function main() {
   console.log(`Datum: ${DateTime.now().setZone(TIME_ZONE).toFormat('dd.MM.yyyy')}`);
   console.log(`Zeitzone: ${TIME_ZONE}`);
 
+  console.log(`🧭 Systemzeit: ${new Date().toISOString()}`);
+  console.log(`🧭 Luxon-Zeit: ${DateTime.now().setZone(TIME_ZONE).toISO()}`);
+
+
   const prayerData = await fetchPrayerTimes();
 
   if (!prayerData) {

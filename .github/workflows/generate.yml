@@ -2,12 +2,14 @@ name: Gebetszeiten automatisch generieren
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # Täglich um 01:00 UTC
+    - cron: '0 1 * * *'  # Täglich um 01:00 UTC (03:00 Berlin)
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Berlin  # ✅ Setzt die System-Zeitzone im GitHub-Runner
 
     steps:
       - name: 📥 Repository auschecken (mit Token)
@@ -24,7 +26,9 @@ jobs:
         run: npm ci
 
       - name: ⚙️ ICS-Datei generieren
-        run: npx ts-node generate-calendar.ts
+        run: |
+          echo "🕓 Runner-Zeit (system): $(date)"
+          npx ts-node generate-calendar.ts
 
       - name: 💾 Änderungen committen und pushen
         run: |
