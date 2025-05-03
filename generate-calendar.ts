@@ -70,8 +70,7 @@ async function fetchPrayerTimes(): Promise<PrayerTimesResponse | null> {
 function createICSFile(prayerData: PrayerTimesResponse): void {
   const calendar: ICalCalendar = ical({
     name: 'Muslimische Gebetszeiten',
-    prodId: '//alislam.org//Gebetszeiten//DE',
-    timezone: TIME_ZONE
+    prodId: '//alislam.org//Gebetszeiten//DE'
   });
 
   const todayBerlin = DateTime.now().setZone(TIME_ZONE).startOf('day');
@@ -97,7 +96,6 @@ function createICSFile(prayerData: PrayerTimesResponse): void {
       start: prayerTimeUTC.toJSDate(),
       end: endTimeUTC.toJSDate(),
       description: `${prayer.name} Gebetszeit automatisch aus alislam.org`,
-      
     });
 
     event.uid(eventId);
